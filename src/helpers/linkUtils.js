@@ -6,8 +6,9 @@ function caselessCompare(a, b) {
 }
 
 function extractLinks(content) {
+  const contentString = typeof content === 'string' ? content : '';
   return [
-    ...(content.match(wikiLinkRegex) || []).map(
+    ...(contentString.match(wikiLinkRegex) || []).map(
       (link) =>
         link
           .slice(2, -2)
@@ -17,7 +18,7 @@ function extractLinks(content) {
           .trim()
           .split("#")[0]
     ),
-    ...(content.match(internalLinkRegex) || []).map(
+    ...(contentString.match(internalLinkRegex) || []).map(
       (link) =>
         link
           .slice(6, -1)
