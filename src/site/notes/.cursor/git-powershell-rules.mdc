@@ -1,0 +1,119 @@
+# Git and PowerShell Rules
+
+These rules were learned from working with @Daily Notes/2025-03-21.md and handling git operations in PowerShell.
+
+## PowerShell Command Execution
+
+### Native Commands
+Use PowerShell native commands instead of Unix-style commands:
+```powershell
+# ✅ DO
+Remove-Item -Force file.txt
+
+# ❌ DON'T
+rm -f file.txt
+```
+
+### Path Handling
+When working with paths like @Daily Notes:
+```powershell
+# ✅ DO
+git add "src/site/notes/Daily Notes/2025-03-21.md"
+
+# ❌ DON'T
+git add src/site/notes/Daily\ Notes/2025-03-21.md
+```
+
+### Error Handling
+```powershell
+# ✅ DO
+Remove-Item -Force .git/index.lock -ErrorAction SilentlyContinue
+
+# ❌ DON'T
+rm -f .git/index.lock 2>/dev/null
+```
+
+## Git Operations
+
+### Command Sequencing
+When working with files like @Daily Notes/2025-03-21.md:
+
+```powershell
+# ✅ DO THIS - Step by step
+git status  # Check current state
+git add "src/site/notes/Daily Notes/2025-03-21.md"  # Add specific file
+git commit -m "feat: enable publishing for daily note"  # Descriptive commit
+git push  # Push changes
+
+# ❌ DON'T DO THIS - Chaining commands
+git add . && git commit -m "update" && git push
+```
+
+### Lock File Handling
+If encountering .git/index.lock issues:
+```powershell
+# ✅ DO
+Remove-Item -Force .git/index.lock -ErrorAction SilentlyContinue
+git status  # Check if resolved
+
+# ❌ DON'T
+rm -f .git/index.lock
+git add .  # Without checking status
+```
+
+## Output Handling
+
+### Buffer Issues
+When encountering PowerShell buffer/display issues like we saw with:
+```powershell
+# ❌ DON'T keep trying problematic commands
+git status | cat  # This had buffer issues
+
+# ✅ DO break into simple commands
+git status
+git diff --name-status  # If you need a more compact view
+```
+
+### Error Recovery
+Example from our session:
+```powershell
+# ✅ DO - Handle errors step by step
+git status  # Check current state
+Remove-Item -Force .git/index.lock -ErrorAction SilentlyContinue  # Clear locks if needed
+git add "src/site/notes/Daily Notes/2025-03-21.md"  # Add specific file
+git commit -m "feat: enable publishing"  # Commit
+git push  # Push changes
+
+# ❌ DON'T - Retry failed commands without investigating
+git add . && git commit -m "update" && git push  # Don't chain when troubleshooting
+```
+
+## Best Practices
+
+1. File Operations
+   - Always verify paths exist before operations
+   - Use `Test-Path` for file checks
+   - Handle spaces in paths with quotes
+
+2. Git Workflow
+   - Use descriptive commit messages
+   - Check status between operations
+   - Handle one file at a time when troubleshooting
+
+3. Error Handling
+   - Use PowerShell's native error handling
+   - Check operation results
+   - Provide clear error explanations
+
+4. Command Structure
+   - Break down complex operations
+   - Use appropriate PowerShell cmdlets
+   - Avoid Unix-style commands in PowerShell
+
+## Examples from this Project
+
+Working with @Daily Notes/2025-03-21.md taught us:
+1. Always quote paths with spaces
+2. Use forward slashes in git commands
+3. Break down complex operations when troubleshooting
+4. Use PowerShell native commands for better error handling 
