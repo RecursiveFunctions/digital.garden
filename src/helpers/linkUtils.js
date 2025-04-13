@@ -1,4 +1,4 @@
-const wikiLinkRegex = /\[\[(.*?\|.*?)\]\]/g;
+const wikiLinkRegex = /\[\[([^\]|\n]+)(?:\|[^\n\]]+)?\]\]/g;
 const internalLinkRegex = /href="\/(.*?)"/g;
 
 function caselessCompare(a, b) {
@@ -8,11 +8,9 @@ function caselessCompare(a, b) {
 function extractLinks(content) {
   const contentString = typeof content === 'string' ? content : '';
   return [
-    ...(contentString.match(wikiLinkRegex) || []).map(
-      (link) =>
-        link
-          .slice(2, -2)
-          .split("|")[0]
+    ...(contentString.matchAll(wikiLinkRegex) || []).map(
+      (match) =>
+        match[1]
           .replace(/.(md|markdown)\s?$/i, "")
           .replace("\\", "")
           .trim()
