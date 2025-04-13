@@ -30,12 +30,12 @@ function extractLinks(content) {
   ];
 }
 
-function getGraph(data) {
+async function getGraph(data) {
   let nodes = {};
   let links = [];
   let stemURLs = {};
   let homeAlias = "/";
-  (data.collections.note || []).forEach((v, idx) => {
+  for(const v of (data.collections.note || [])){
     let fpath = v.filePathStem.replace("/notes/", "");
     let parts = fpath.split("/");
     let group = "none";
@@ -43,7 +43,7 @@ function getGraph(data) {
       group = parts[parts.length - 2];
     }
     nodes[v.url] = {
-      id: idx,
+      id: v.url,
       title: v.data.title || v.fileSlug,
       url: v.url,
       group,
@@ -51,7 +51,7 @@ function getGraph(data) {
         v.data["dg-home"] ||
         (v.data.tags && v.data.tags.indexOf("gardenEntry") > -1) ||
         false,
-      outBound: extractLinks(v.template.frontMatter.content),
+      outBound: extractLinks(await v.template.getContents()),
       neighbors: new Set(),
       backLinks: new Set(),
       noteIcon: v.data.noteIcon || process.env.NOTE_ICON_DEFAULT,
@@ -64,7 +64,7 @@ function getGraph(data) {
     ) {
       homeAlias = v.url;
     }
-  });
+  };
   Object.values(nodes).forEach((node) => {
     let outBound = new Set();
     node.outBound.forEach((olink) => {
