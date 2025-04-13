@@ -10,6 +10,7 @@ permalink: /daily-notes/
 This page contains links to all daily notes, sorted by date (newest first). This index is automatically generated.
 
 ## 2025 April
+- [[Daily Notes/2025-04-12|12 Apr 2025]] - Starting another project with AI assistance
 - [[Daily Notes/2025-04-10|10 Apr 2025]] - AI Tools Presentation 2
 - [[Daily Notes/2025-04-07|07 Apr 2025]] - Importing my notes here forces me to rethink how everything relates to one another
 - [[Daily Notes/2025-04-06|06 Apr 2025]] - Fixed Build Errors in Digital Garden
