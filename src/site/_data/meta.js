@@ -58,6 +58,19 @@ module.exports = async (data) => {
     showCreated: process.env.SHOW_CREATED_TIMESTAMP == "true",
     showUpdated: process.env.SHOW_UPDATED_TIMESTAMP == "true",
   };
+
+  // Define the 'settings' object based on environment variables or defaults
+  const settings = {
+    dgShowFileTree: process.env.DG_SHOW_FILE_TREE == "true" || false,
+    dgEnableSearch: process.env.DG_ENABLE_SEARCH == "true" || true,
+    dgShowInlineTitle: process.env.DG_SHOW_INLINE_TITLE == "true" || true,
+    dgShowTags: process.env.DG_SHOW_TAGS == "true" || true,
+    dgShowBacklinks: process.env.DG_SHOW_BACKLINKS == "true" || true,
+    dgShowLocalGraph: process.env.DG_SHOW_LOCAL_GRAPH == "true" || true,
+    dgShowToc: process.env.DG_SHOW_TOC == "true" || true,
+    dgLinkPreview: process.env.DG_LINK_PREVIEW == "true" || true, // Explicitly enable link preview by default
+  };
+
   const meta = {
     env: process.env.ELEVENTY_ENV,
     theme: process.env.THEME,
@@ -71,6 +84,7 @@ module.exports = async (data) => {
     siteBaseUrl: baseUrl,
     styleSettingsCss,
     buildDate: new Date(),
+    settings, // Add the settings object to the exported meta data
   };
 
   return meta;
