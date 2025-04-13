@@ -11,3 +11,47 @@ body {
     //   color: black;
     //  }
 }
+
+// Add custom styles below, these will not be overwritten when the digital garden is updated
+// Begin graph visibility fixes
+
+/* Debug outline for sidebar elements */
+.sidebar, .sidebar-container, .graph, #link-graph {
+    border: 2px solid red !important;
+}
+
+/* Force graph to be visible */
+.sidebar {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 350px !important;
+    z-index: 99 !important;
+}
+
+.graph {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    min-height: 350px !important;
+    width: 320px !important;
+    background-color: rgba(255, 0, 0, 0.1) !important; /* Light red background to see the graph area */
+}
+
+#link-graph {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: 320px !important;
+    width: 320px !important;
+    background-color: rgba(0, 255, 0, 0.1) !important; /* Light green background to see the container */
+}
+
+/* Make everything in the sidebar more visible */
+.sidebar-container {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+    padding: 10px !important;
+    border-radius: 5px !important;
+}
+
+/* End graph visibility fixes */

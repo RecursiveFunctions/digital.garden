@@ -2,4 +2,9 @@
 permalink: /graph.json
 eleventyExcludeFromCollections: true
 ---
+{# Add debug output #}
+{% if graph %}
 {{ graph | jsonify | safe }}
+{% else %}
+{"error": "Graph data is missing", "nodes": {}, "links": []}
+{% endif %}
