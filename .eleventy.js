@@ -23,7 +23,7 @@ function transformImage(src, cls, alt, sizes, widths = ["500", "700", "auto"]) {
     urlPath: "/img/optimized",
   };
 
-  // generate images, while this is async we don’t wait
+  // generate images, while this is async we don't wait
   Image(src, options);
   let metadata = Image.statsSync(src, options);
   return metadata;
@@ -277,14 +277,12 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("link", function (str) {
     return (
       str &&
-      str.replace(/\[\[(.*?\|.*?)\]\]/g, function (match, p1) {
-        //Check if it is an embedded excalidraw drawing or mathjax javascript
-        if (p1.indexOf("],[") > -1 || p1.indexOf('"$"') > -1) {
+      str.replace(/\\[\\[([^|]*?)(?:\\|(.*?))?\\]\\]/g, function (match, fileLink, linkTitle) {
+        if (fileLink.indexOf("],[") > -1 || fileLink.indexOf('"$"') > -1) {
           return match;
         }
-        const [fileLink, linkTitle] = p1.split("|");
-
-        return getAnchorLink(fileLink, linkTitle);
+        const displayTitle = linkTitle !== undefined ? linkTitle : fileLink;
+        return getAnchorLink(fileLink.trim(), displayTitle.trim());
       })
     );
   });
