@@ -128,11 +128,12 @@
   }
 
   function setupListeners(linkElement) {
+    // Remove any existing listeners to prevent duplicates
+    linkElement.removeEventListener('mouseleave', hideTooltip);
+    linkElement.removeEventListener('mouseenter', showTooltip);
+    
+    // Add listeners
     linkElement.addEventListener('mouseleave', function (_event) {
-      hideTooltip();
-    });
-
-    tooltipWrapper.addEventListener('mouseleave', function (_event) {
       hideTooltip();
     });
 
@@ -141,16 +142,70 @@
       clearTimeout(contentTimeout);
       showTooltip(event);
     });
-
-    tooltipWrapper.addEventListener('mouseenter', function (event) {
-      clearTimeout(opacityTimeout);
-      clearTimeout(contentTimeout);
-    });
   }
 
+  tooltipWrapper.addEventListener('mouseleave', function (_event) {
+    hideTooltip();
+  });
+
+  tooltipWrapper.addEventListener('mouseenter', function (event) {
+    clearTimeout(opacityTimeout);
+    clearTimeout(contentTimeout);
+  });
+
+  // Initialize on page load
   window.addEventListener("load", function(event) 
   {
+    console.log("Link preview initializing...");
+    // Initialize on all internal links
     document.querySelectorAll('.internal-link').forEach(setupListeners);
     document.querySelectorAll('.backlink-card a').forEach(setupListeners);
   });
+
+  // Also set up a mutation observer to catch any dynamically added links
+  const observeLinks = () => {
+    const observer = new MutationObserver((mutations) => {
+      let newLinks = false;
+      
+      mutations.forEach(mutation => {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+          mutation.addedNodes.forEach(node => {
+            // Check if the node itself is a link
+            if (node.nodeType === 1 && node.classList && 
+                (node.classList.contains('internal-link') || 
+                (node.parentNode && node.parentNode.classList && node.parentNode.classList.contains('backlink-card')))) {
+              setupListeners(node);
+              newLinks = true;
+            }
+            
+            // Check for links within the added node
+            if (node.nodeType === 1 && node.querySelectorAll) {
+              const links = node.querySelectorAll('.internal-link, .backlink-card a');
+              if (links.length > 0) {
+                links.forEach(setupListeners);
+                newLinks = true;
+              }
+            }
+          });
+        }
+      });
+      
+      if (newLinks) {
+        console.log("New internal links detected and initialized for preview");
+      }
+    });
+
+    // Start observing the document body for changes
+    observer.observe(document.body, { 
+      childList: true, 
+      subtree: true 
+    });
+  };
+
+  // Set up the observer after the DOM is fully loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', observeLinks);
+  } else {
+    observeLinks();
+  }
 </script>
