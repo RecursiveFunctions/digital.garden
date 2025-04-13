@@ -277,7 +277,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("link", function (str) {
     return (
       str &&
-      str.replace(/\\[\\[([^|]*?)(?:\\|(.*?))?\\]\\]/g, function (match, fileLink, linkTitle) {
+      str.replace(/\[\[([^|]*?)(?:\|(.*?))?\]\]/g, function (match, fileLink, linkTitle) {
         if (fileLink.indexOf("],[") > -1 || fileLink.indexOf('"$"') > -1) {
           return match;
         }
