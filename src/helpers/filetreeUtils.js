@@ -2,7 +2,6 @@ const sortTree = (unsorted) => {
   //Sort by folder before file, then by name
   const orderedTree = Object.keys(unsorted)
     .sort((a, b) => {
-
       let a_pinned = unsorted[a].pinned || false;
       let b_pinned = unsorted[b].pinned || false;
       if (a_pinned != b_pinned) {
@@ -24,6 +23,19 @@ const sortTree = (unsorted) => {
         return -1;
       }
 
+      // If both are notes and they're in Daily Notes folder, sort by creation date (newest first)
+      if (a_is_note && b_is_note) {
+        const a_path = unsorted[a].path || "";
+        const b_path = unsorted[b].path || "";
+        if (a_path.includes("Daily Notes") && b_path.includes("Daily Notes")) {
+          const a_created = unsorted[a].created;
+          const b_created = unsorted[b].created;
+          if (a_created && b_created) {
+            return new Date(b_created) - new Date(a_created);
+          }
+        }
+      }
+
       //Regular expression that extracts any initial decimal number
       const aNum = parseFloat(a.match(/^\d+(\.\d+)?/));
       const bNum = parseFloat(b.match(/^\d+(\.\d+)?/));
@@ -43,7 +55,6 @@ const sortTree = (unsorted) => {
     })
     .reduce((obj, key) => {
       obj[key] = unsorted[key];
-
       return obj;
     }, {});
 
@@ -64,6 +75,9 @@ function getPermalinkMeta(note, key) {
   let hide = false;
   let pinned = false;
   let folders = null;
+  let created = null;
+  let updated = null;
+  let path = "";
   try {
     if (note.data.permalink) {
       permalink = note.data.permalink;
@@ -77,27 +91,33 @@ function getPermalinkMeta(note, key) {
     if (note.data.noteIcon) {
       noteIcon = note.data.noteIcon;
     }
-    // Reason for adding the hide flag instead of removing completely from file tree is to
-    // allow users to use the filetree data elsewhere without the fear of losing any data.
     if (note.data.hide) {
       hide = note.data.hide;
     }
     if (note.data.pinned) {
       pinned = note.data.pinned;
     }
+    if (note.data.created) {
+      created = note.data.created;
+    }
+    if (note.data.updated) {
+      updated = note.data.updated;
+    }
     if (note.data["dg-path"]) {
       folders = note.data["dg-path"].split("/");
+      path = note.data["dg-path"];
     } else {
       folders = note.filePathStem
         .split("notes/")[1]
         .split("/");
+      path = folders.join("/");
     }
     folders[folders.length - 1]+= ".md";
   } catch {
     //ignore
   }
 
-  return [{ permalink, name, noteIcon, hide, pinned }, folders];
+  return [{ permalink, name, noteIcon, hide, pinned, created, updated, path }, folders];
 }
 
 function assignNested(obj, keyPath, value) {

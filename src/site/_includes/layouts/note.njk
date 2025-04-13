@@ -1,5 +1,4 @@
 ---
-permalink: "notes/{{ page.fileSlug | slugify }}/"
 ---
 <!DOCTYPE html>
 <html lang="{{ meta.mainLanguage }}">
@@ -67,7 +66,8 @@ permalink: "notes/{{ page.fileSlug | slugify }}/"
       {% for imp in dynamics.notes.beforeContent %}
         {% include imp %}
       {% endfor %}
-      {{ content | hideDataview | taggify | link | safe}}
+      {{ content | hideDataview | taggify | transclusion | link | safe}}
+      {% include "components/dailyNoteNav.njk" %}
       {% for imp in dynamics.common.afterContent %}
         {% include imp %}
       {% endfor %}
