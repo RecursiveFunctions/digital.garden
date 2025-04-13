@@ -1,0 +1,11 @@
+# Internal Link Formatting Rules
+
+1. Use backslashes (`\`) for directory separators in internal links
+2. Include trailing backslashes (`\`) in internal links
+3. Use the pipe (`|`) syntax for link text: `[[path\to\file\|Display Text]]`
+
+## Examples:
+- Correct: `[[Java\Java\|Java]]`
+- Correct: `[[Philosophy\Personal Views\|Personal Views]]`
+- Incorrect: `[[Java/Java|Java]]` (forward slashes)
+- Incorrect: `[[Java\Java|Java]]` (missing trailing slash) 
