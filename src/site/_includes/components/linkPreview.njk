@@ -16,7 +16,23 @@
   transition: opacity 100ms;
   unicode-bidi: plaintext;
   overflow-y: scroll;
-  z-index: 10;
+  z-index: 9999;
+  visibility: hidden;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  #tooltip-wrapper {
+    width: 90%;
+    max-width: 90%;
+    left: 5% !important;
+    right: 5% !important;
+  }
+}
+
+#tooltip-wrapper.active {
+  opacity: 1;
+  visibility: visible;
 }
 
 #tooltip-wrapper:after {
@@ -30,8 +46,37 @@
   unicode-bidi: plaintext;
   height: 75px;
 }
+
+/* Add a subtle highlight to internal links to make them more visible */
+.internal-link {
+  border-bottom: 1px dashed var(--interactive-accent);
+  text-decoration: none;
+}
+
+/* Debug panel */
+#preview-debug {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: var(--background-primary);
+  border: 1px solid var(--interactive-accent);
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  z-index: 9999;
+}
+
+#preview-debug button {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+}
 </style>
-<div style="opacity: 0; display: none;" id='tooltip-wrapper'>
+<div style="opacity: 0; visibility: hidden;" id='tooltip-wrapper'>
   <div id='tooltip-content'>
   </div>
 </div>
@@ -39,7 +84,16 @@
 <iframe style="display: none; height: 0; width: 0;" id='link-preview-iframe' src="">
 </iframe>
 
+<div id="preview-debug">
+  <p>Link Preview Debug</p>
+  <div id="preview-status">Status: Initializing</div>
+  <button id="test-preview">Test Preview</button>
+  <button id="count-links">Count Links</button>
+</div>
+
 <script>
+  console.log("Link preview component loaded");
+  
   var opacityTimeout;
   var contentTimeout;
   var transitionDurationMs = 100;
@@ -53,9 +107,10 @@
   function hideTooltip() {
     opacityTimeout = setTimeout(function () {
       tooltipWrapper.style.opacity = 0;
+      tooltipWrapper.classList.remove('active');
       contentTimeout = setTimeout(function () {
         tooltipContent.innerHTML = '';
-        tooltipWrapper.style.display = 'none';
+        tooltipWrapper.style.visibility = 'hidden';
       }, transitionDurationMs + 1);
     }, transitionDurationMs)
   }
@@ -70,31 +125,64 @@
       if (!linkHistories[contentURL]) {
         iframe.src = contentURL
         iframe.onload = function () {
-          tooltipContentHtml = ''
-          tooltipContentHtml += '<div style="font-weight: bold; unicode-bidi: plaintext;">' + iframe.contentWindow.document.querySelector('h1').innerHTML + '</div>'
-          tooltipContentHtml += iframe.contentWindow.document.querySelector('.content').innerHTML
-          tooltipContent.innerHTML = tooltipContentHtml
-          linkHistories[contentURL] = tooltipContentHtml
-          tooltipWrapper.style.display = 'block';
-          tooltipWrapper.scrollTop = 0;
-          setTimeout(function () {
-            tooltipWrapper.style.opacity = 1;
-            if (url.indexOf("#") != -1) {
-              let id = url.split('#')[1];
-              const focus = tooltipWrapper.querySelector(`[id='${id}']`);
-              focus.classList.add('referred');
-              console.log(focus);
-              focus.scrollIntoView({behavior: 'smooth'}, true)
+          try {
+            console.log("Loading preview for: " + contentURL);
+            tooltipContentHtml = '';
+            
+            // Safely get the title
+            const h1Element = iframe.contentWindow.document.querySelector('h1');
+            if (h1Element) {
+              tooltipContentHtml += '<div style="font-weight: bold; unicode-bidi: plaintext;">' + h1Element.innerHTML + '</div>';
             } else {
-              tooltipWrapper.scroll(0, 0);
+              tooltipContentHtml += '<div style="font-weight: bold; unicode-bidi: plaintext;">Preview</div>';
             }
-          }, 1)
+            
+            // Safely get the content
+            const contentElement = iframe.contentWindow.document.querySelector('.content');
+            if (contentElement) {
+              tooltipContentHtml += contentElement.innerHTML;
+            } else {
+              const bodyElement = iframe.contentWindow.document.querySelector('body');
+              if (bodyElement) {
+                tooltipContentHtml += '<div>Content preview not available in standard format</div>';
+              } else {
+                tooltipContentHtml += '<div>Unable to load preview</div>';
+              }
+            }
+            
+            tooltipContent.innerHTML = tooltipContentHtml;
+            linkHistories[contentURL] = tooltipContentHtml;
+            tooltipWrapper.style.visibility = 'visible';
+            tooltipWrapper.scrollTop = 0;
+            
+            setTimeout(function () {
+              tooltipWrapper.style.opacity = 1;
+              tooltipWrapper.classList.add('active');
+              if (url.indexOf("#") != -1) {
+                let id = url.split('#')[1];
+                const focus = tooltipWrapper.querySelector(`[id='${id}']`);
+                if (focus) {
+                  focus.classList.add('referred');
+                  focus.scrollIntoView({behavior: 'smooth'}, true);
+                }
+              } else {
+                tooltipWrapper.scroll(0, 0);
+              }
+            }, 1);
+          } catch (error) {
+            console.error("Error displaying preview:", error);
+            tooltipContent.innerHTML = '<div>Error loading preview</div>';
+            tooltipWrapper.style.visibility = 'visible';
+            tooltipWrapper.style.opacity = 1;
+            tooltipWrapper.classList.add('active');
+          }
         }
       } else {
         tooltipContent.innerHTML = linkHistories[contentURL]
-        tooltipWrapper.style.display = 'block';
+        tooltipWrapper.style.visibility = 'visible';
         setTimeout(function () {
           tooltipWrapper.style.opacity = 1;
+          tooltipWrapper.classList.add('active');
           if (url.indexOf("#") != -1) {
               let id = url.split('#')[1];
               const focus = tooltipWrapper.querySelector(`[id='${id}']`);
@@ -158,8 +246,12 @@
   {
     console.log("Link preview initializing...");
     // Initialize on all internal links
-    document.querySelectorAll('.internal-link').forEach(setupListeners);
-    document.querySelectorAll('.backlink-card a').forEach(setupListeners);
+    const internalLinks = document.querySelectorAll('.internal-link');
+    const backlinkCards = document.querySelectorAll('.backlink-card a');
+    console.log(`Found ${internalLinks.length} internal links and ${backlinkCards.length} backlink cards`);
+    
+    internalLinks.forEach(setupListeners);
+    backlinkCards.forEach(setupListeners);
   });
 
   // Also set up a mutation observer to catch any dynamically added links
@@ -208,4 +300,28 @@
   } else {
     observeLinks();
   }
+
+  // Debug functions
+  document.getElementById('test-preview').addEventListener('click', function() {
+    const links = document.querySelectorAll('.internal-link');
+    if (links.length > 0) {
+      document.getElementById('preview-status').textContent = 'Status: Testing preview on first link';
+      
+      // Create a synthetic mouseover event
+      const mouseEvent = new MouseEvent('mouseenter', {
+        'view': window,
+        'bubbles': true,
+        'cancelable': true
+      });
+      
+      links[0].dispatchEvent(mouseEvent);
+    } else {
+      document.getElementById('preview-status').textContent = 'Status: No internal links found';
+    }
+  });
+  
+  document.getElementById('count-links').addEventListener('click', function() {
+    const links = document.querySelectorAll('.internal-link');
+    document.getElementById('preview-status').textContent = `Status: Found ${links.length} internal links`;
+  });
 </script>

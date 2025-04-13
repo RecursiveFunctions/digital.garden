@@ -61,14 +61,14 @@ module.exports = async (data) => {
 
   // Define the 'settings' object based on environment variables or defaults
   const settings = {
-    dgShowFileTree: process.env.DG_SHOW_FILE_TREE == "true" || false,
-    dgEnableSearch: process.env.DG_ENABLE_SEARCH == "true" || true,
-    dgShowInlineTitle: process.env.DG_SHOW_INLINE_TITLE == "true" || true,
-    dgShowTags: process.env.DG_SHOW_TAGS == "true" || true,
-    dgShowBacklinks: process.env.DG_SHOW_BACKLINKS == "true" || true,
-    dgShowLocalGraph: process.env.DG_SHOW_LOCAL_GRAPH == "true" || true,
-    dgShowToc: process.env.DG_SHOW_TOC == "true" || true,
-    dgLinkPreview: process.env.DG_LINK_PREVIEW == "true" || true, // Explicitly enable link preview by default
+    dgShowFileTree: process.env.DG_SHOW_FILE_TREE === "true",
+    dgEnableSearch: process.env.DG_ENABLE_SEARCH !== "false",
+    dgShowInlineTitle: process.env.DG_SHOW_INLINE_TITLE !== "false",
+    dgShowTags: process.env.DG_SHOW_TAGS !== "false",
+    dgShowBacklinks: process.env.DG_SHOW_BACKLINKS !== "false",
+    dgShowLocalGraph: process.env.DG_SHOW_LOCAL_GRAPH !== "false",
+    dgShowToc: process.env.DG_SHOW_TOC !== "false",
+    dgLinkPreview: process.env.DG_LINK_PREVIEW !== "false",
   };
 
   const meta = {
