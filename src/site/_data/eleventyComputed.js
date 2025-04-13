@@ -3,7 +3,7 @@ const { getFileTree } = require("../../helpers/filetreeUtils");
 const { userComputed } = require("../../helpers/userUtils");
 
 module.exports = {
-  // Handle graph data as a global data file instead of computed data
+  graph: (data) => getGraph(data),
   filetree: (data) => getFileTree(data),
   userComputed: (data) => userComputed(data)
 };

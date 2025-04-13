@@ -28,6 +28,8 @@
 <link href="{{style}}" rel="stylesheet">
 {%- endfor -%}
 
+{% favicons './src/site/favicon.svg', appleIconBgColor='#123' %}
+
 {% if metatags %}
     {% for name, content in metatags %}
         <meta name="{{ name }}" content="{{ content }}">
@@ -39,12 +41,5 @@
         {{ meta.styleSettingsCss | safe }}
     </style>
 {% endif %}
-
-{% if settings.dgShowBacklinks === true or settings.dgShowLocalGraph === true or settings.dgShowToc === true%}
-    <link rel="stylesheet" href="/styles/backlinks.css">
-{% endif %}
-{%- if settings.dgShowLocalGraph === true -%}
-    {# Removed Force Graph library script #}
-{%- endif -%}
 <style>
 </style>
